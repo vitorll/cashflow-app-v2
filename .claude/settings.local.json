@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose:*)",
+      "Bash(npm install:*)",
+      "Bash(lsof:*)",
+      "Bash(ps:*)",
+      "Bash(npx vitest:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(git add:*)",
+      "Bash(git restore:*)",
+      "Bash(git commit:*)",
+      "Bash(docker:*)"
+    ]
+  },
+  "disabledMcpjsonServers": [
+    "excel"
+  ]
+}
