@@ -1,5 +1,8 @@
 # Data Dictionary
 
+> **V1 SCHEMA — HISTORICAL REFERENCE ONLY**
+> This document describes the v1 database schema. The v2 schema is defined in task A2 and will differ: normalised phase columns, `NUMERIC(18,4)` everywhere, new tables (`excel_templates`, soft-delete on `imports`), and PostgreSQL native enums. Do not use this as a spec for v2 implementation.
+
 Reference for all database tables and views in the Cash Flow Projection application.
 
 ---
