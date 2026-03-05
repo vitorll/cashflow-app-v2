@@ -1,0 +1,96 @@
+{
+  "sheet": "Output_V2",
+  "range": "E3:N11",
+  "description": "Control panel section \u2014 stage selectors, report months, actuals dates",
+  "headers": [
+    null,
+    "Control Panel",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "rows": [
+    {
+      "row": 3,
+      "label": "Control Panel",
+      "values": {
+        "F": "Control Panel"
+      }
+    },
+    {
+      "row": 4,
+      "label": null,
+      "values": {}
+    },
+    {
+      "row": 5,
+      "label": "Current Stage Selector - A",
+      "values": {
+        "F": "Current Stage Selector - A",
+        "G": 1
+      }
+    },
+    {
+      "row": 6,
+      "label": "Current Stage Selector - B",
+      "values": {
+        "F": "Current Stage Selector - B"
+      }
+    },
+    {
+      "row": 7,
+      "label": "WOP",
+      "values": {
+        "F": "Whole of Life",
+        "G": "WOP"
+      }
+    },
+    {
+      "row": 8,
+      "label": null,
+      "values": {}
+    },
+    {
+      "row": 9,
+      "label": "Current",
+      "values": {
+        "G": "Current",
+        "H": "Previous",
+        "I": "Budget"
+      }
+    },
+    {
+      "row": 10,
+      "label": "PCG Report Month",
+      "values": {
+        "F": "PCG Report Month",
+        "G": "2025-09-30T00:00:00",
+        "H": "2025-07-31T00:00:00",
+        "I": "2025-09-30T00:00:00"
+      },
+      "formulas": {
+        "I": "=+G10"
+      }
+    },
+    {
+      "row": 11,
+      "label": "Adopted Actual To Date",
+      "values": {
+        "F": "Adopted Actual To Date",
+        "G": "2025-08-31T00:00:00",
+        "H": "2025-06-30T00:00:00",
+        "I": "2025-08-31T00:00:00"
+      },
+      "formulas": {
+        "G": "=+DEV.Sep25!$Q$3",
+        "H": "=+DEV.Jul25!$Q$3",
+        "I": "=+DEV.FY26B!$Q$3"
+      }
+    }
+  ]
+}

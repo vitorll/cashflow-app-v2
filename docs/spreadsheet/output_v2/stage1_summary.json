@@ -1,0 +1,598 @@
+{
+  "sheet": "Output_V2",
+  "range": "E15:R40",
+  "description": "Stage 1 summary \u2014 settlements, revenue, costs, NCF (Current vs Previous vs Budget)",
+  "headers": [
+    "OUTPUT",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "rows": [
+    {
+      "row": 15,
+      "label": "OUTPUT",
+      "values": {
+        "E": "OUTPUT"
+      }
+    },
+    {
+      "row": 16,
+      "label": "Current PCG",
+      "values": {
+        "F": "(In $m)",
+        "G": "Current PCG",
+        "J": "Stage Total",
+        "L": "\u0394 to Prev PCG",
+        "N": "\u0394 to Budget"
+      }
+    },
+    {
+      "row": 17,
+      "label": "To Date",
+      "values": {
+        "F": "Stage 1",
+        "G": "To Date",
+        "H": "% Compl.",
+        "I": "TOTAL",
+        "J": "Previous",
+        "K": "Budget",
+        "L": "$ ",
+        "M": "%",
+        "N": "$ ",
+        "O": "%",
+        "P": "Comments"
+      },
+      "formulas": {
+        "F": "=\"Stage \"&_xlfn.TEXTJOIN(\"&\", TRUE, $G$5:$G$6)"
+      }
+    },
+    {
+      "row": 18,
+      "label": "Settlements (#)",
+      "values": {
+        "F": "Settlements (#)",
+        "G": 8,
+        "H": 0.2962962962962963,
+        "I": 27,
+        "J": 27,
+        "K": 27,
+        "L": 0,
+        "M": 0,
+        "N": 0,
+        "O": 0
+      },
+      "formulas": {
+        "H": "=+IFERROR(G18/I18, 0)",
+        "L": "=+I18-J18",
+        "M": "=+IFERROR(IF(L18>0, ABS(L18/J18), -ABS(L18/J18)), 0)",
+        "N": "=+I18-K18",
+        "O": "=+IFERROR(IF(N18>0, ABS(N18/K18), -ABS(N18/K18)), 0)"
+      }
+    },
+    {
+      "row": 19,
+      "label": "Development Cash Flows (Inc. GST)",
+      "values": {
+        "F": "Development Cash Flows (Inc. GST)"
+      }
+    },
+    {
+      "row": 20,
+      "label": "Gross Revenue Proceeds",
+      "values": {
+        "F": "Gross Revenue Proceeds",
+        "G": 4411000,
+        "H": 0.3137715179968701,
+        "I": 14058000,
+        "J": 14058000,
+        "K": 13968000,
+        "L": 0,
+        "M": 0,
+        "N": 90000,
+        "O": 0.006443298969072165
+      },
+      "formulas": {
+        "H": "=+IFERROR(G20/I20, 0)",
+        "L": "=+I20-J20",
+        "M": "=+IFERROR(IF(L20>0, ABS(L20/J20), -ABS(L20/J20)), 0)",
+        "N": "=+I20-K20",
+        "O": "=+IFERROR(IF(N20>0, ABS(N20/K20), -ABS(N20/K20)), 0)"
+      }
+    },
+    {
+      "row": 21,
+      "label": "Selling Costs",
+      "values": {
+        "F": "Selling Costs",
+        "G": -105268.1296,
+        "H": 0.14133012118330066,
+        "I": -744838.6,
+        "J": -744838.6,
+        "K": -740158.6000000001,
+        "L": 0,
+        "M": 0,
+        "N": -4679.999999999884,
+        "O": -0.006322969158231604
+      },
+      "formulas": {
+        "H": "=+IFERROR(G21/I21, 0)",
+        "L": "=+I21-J21",
+        "M": "=+IFERROR(IF(L21>0, ABS(L21/J21), -ABS(L21/J21)), 0)",
+        "N": "=+I21-K21",
+        "O": "=+IFERROR(IF(N21>0, ABS(N21/K21), -ABS(N21/K21)), 0)"
+      }
+    },
+    {
+      "row": 22,
+      "label": "NET Revenue Proceeds",
+      "values": {
+        "F": "NET Revenue Proceeds",
+        "G": 4305731.8704,
+        "H": 0.3234191895547815,
+        "I": 13313161.4,
+        "J": 13313161.4,
+        "K": 13227841.4,
+        "L": 0,
+        "M": 0,
+        "N": 85320,
+        "O": 0.006450031975738687
+      },
+      "formulas": {
+        "G": "=SUM(G20:G21)",
+        "H": "=+IFERROR(G22/I22, 0)",
+        "I": "=SUM(I20:I21)",
+        "J": "=SUM(J20:J21)",
+        "K": "=SUM(K20:K21)",
+        "L": "=+I22-J22",
+        "M": "=+IFERROR(IF(L22>0, ABS(L22/J22), -ABS(L22/J22)), 0)",
+        "N": "=+I22-K22",
+        "O": "=+IFERROR(IF(N22>0, ABS(N22/K22), -ABS(N22/K22)), 0)"
+      }
+    },
+    {
+      "row": 23,
+      "label": "Home Build",
+      "values": {
+        "F": "Home Build",
+        "G": -6584881.5829,
+        "H": 0.6319438691419209,
+        "I": -10420041.881000001,
+        "J": -10407773.441,
+        "K": -10396197.421,
+        "L": -12268.440000001341,
+        "M": -0.0011787766201435074,
+        "N": -23844.460000000894,
+        "O": -0.002293575144296107
+      },
+      "formulas": {
+        "H": "=+IFERROR(G23/I23, 0)",
+        "L": "=+I23-J23",
+        "M": "=+IFERROR(IF(L23>0, ABS(L23/J23), -ABS(L23/J23)), 0)",
+        "N": "=+I23-K23",
+        "O": "=+IFERROR(IF(N23>0, ABS(N23/K23), -ABS(N23/K23)), 0)"
+      }
+    },
+    {
+      "row": 24,
+      "label": "Contingency",
+      "values": {
+        "F": "Contingency",
+        "G": 0,
+        "H": 0,
+        "I": -247857.5825,
+        "J": -247857.5825,
+        "K": -247857.5825,
+        "L": 0,
+        "M": 0,
+        "N": 0,
+        "O": 0
+      },
+      "formulas": {
+        "H": "=+IFERROR(G24/I24, 0)",
+        "L": "=+I24-J24",
+        "M": "=+IFERROR(IF(L24>0, ABS(L24/J24), -ABS(L24/J24)), 0)",
+        "N": "=+I24-K24",
+        "O": "=+IFERROR(IF(N24>0, ABS(N24/K24), -ABS(N24/K24)), 0)"
+      }
+    },
+    {
+      "row": 25,
+      "label": "Subtotal Inventory Capex",
+      "values": {
+        "F": "Subtotal Inventory Capex",
+        "G": -6584881.5829,
+        "H": 0.6172613086043824,
+        "I": -10667899.4635,
+        "J": -10655631.0235,
+        "K": -10644055.0035,
+        "L": -12268.440000001341,
+        "M": -0.0011513574346694664,
+        "N": -23844.460000000894,
+        "O": -0.0022401669281265748
+      },
+      "formulas": {
+        "G": "=SUM(G23:G24)",
+        "H": "=+IFERROR(G25/I25, 0)",
+        "I": "=SUM(I23:I24)",
+        "J": "=SUM(J23:J24)",
+        "K": "=SUM(K23:K24)",
+        "L": "=+I25-J25",
+        "M": "=+IFERROR(IF(L25>0, ABS(L25/J25), -ABS(L25/J25)), 0)",
+        "N": "=+I25-K25",
+        "O": "=+IFERROR(IF(N25>0, ABS(N25/K25), -ABS(N25/K25)), 0)"
+      }
+    },
+    {
+      "row": 26,
+      "label": "Marketing",
+      "values": {
+        "F": "Marketing",
+        "G": -315253.34290000005,
+        "H": 0.998932454028602,
+        "I": -315590.25000000006,
+        "J": -315590.25,
+        "K": -313790.25,
+        "L": 0,
+        "M": 0,
+        "N": -1800.0000000000582,
+        "O": -0.005736315898916738
+      },
+      "formulas": {
+        "H": "=+IFERROR(G26/I26, 0)",
+        "L": "=+I26-J26",
+        "M": "=+IFERROR(IF(L26>0, ABS(L26/J26), -ABS(L26/J26)), 0)",
+        "N": "=+I26-K26",
+        "O": "=+IFERROR(IF(N26>0, ABS(N26/K26), -ABS(N26/K26)), 0)"
+      }
+    },
+    {
+      "row": 27,
+      "label": "LPC Overheads",
+      "values": {
+        "F": "LPC Overheads",
+        "G": 0,
+        "H": 0,
+        "I": 0,
+        "J": 0,
+        "K": 0,
+        "L": 0,
+        "M": 0,
+        "N": 0,
+        "O": 0
+      },
+      "formulas": {
+        "H": "=+IFERROR(G27/I27, 0)",
+        "L": "=+I27-J27",
+        "M": "=+IFERROR(IF(L27>0, ABS(L27/J27), -ABS(L27/J27)), 0)",
+        "N": "=+I27-K27",
+        "O": "=+IFERROR(IF(N27>0, ABS(N27/K27), -ABS(N27/K27)), 0)"
+      }
+    },
+    {
+      "row": 28,
+      "label": "Subtotal  Dev Overheads",
+      "values": {
+        "F": "Subtotal  Dev Overheads",
+        "G": -315253.34290000005,
+        "H": 0.998932454028602,
+        "I": -315590.25000000006,
+        "J": -315590.25,
+        "K": -313790.25,
+        "L": 0,
+        "M": 0,
+        "N": -1800.0000000000582,
+        "O": -0.005736315898916738
+      },
+      "formulas": {
+        "G": "=SUM(G26:G27)",
+        "H": "=+IFERROR(G28/I28, 0)",
+        "I": "=SUM(I26:I27)",
+        "J": "=SUM(J26:J27)",
+        "K": "=SUM(K26:K27)",
+        "L": "=+I28-J28",
+        "M": "=+IFERROR(IF(L28>0, ABS(L28/J28), -ABS(L28/J28)), 0)",
+        "N": "=+I28-K28",
+        "O": "=+IFERROR(IF(N28>0, ABS(N28/K28), -ABS(N28/K28)), 0)"
+      }
+    },
+    {
+      "row": 29,
+      "label": "GROSS Dev Cash Flow",
+      "values": {
+        "F": "GROSS Dev Cash Flow",
+        "G": -2594403.0553999995,
+        "H": -1.1136346251851998,
+        "I": 2329671.6865,
+        "J": 2341940.126500001,
+        "K": 2269996.1465000007,
+        "L": -12268.440000001341,
+        "M": -0.005238579697738202,
+        "N": 59675.539999999106,
+        "O": 0.026288828768282268
+      },
+      "formulas": {
+        "G": "=+SUM(G22,G25,G28)",
+        "H": "=+IFERROR(G29/I29, 0)",
+        "I": "=+SUM(I22,I25,I28)",
+        "J": "=+SUM(J22,J25,J28)",
+        "K": "=+SUM(K22,K25,K28)",
+        "L": "=+I29-J29",
+        "M": "=+IFERROR(IF(L29>0, ABS(L29/J29), -ABS(L29/J29)), 0)",
+        "N": "=+I29-K29",
+        "O": "=+IFERROR(IF(N29>0, ABS(N29/K29), -ABS(N29/K29)), 0)"
+      }
+    },
+    {
+      "row": 30,
+      "label": "Estate Major Works",
+      "values": {
+        "F": "Estate Major Works",
+        "G": -2865598.738,
+        "H": 1,
+        "I": -2865598.738,
+        "J": -2865598.738,
+        "K": -2865598.738,
+        "L": 0,
+        "M": 0,
+        "N": 0,
+        "O": 0
+      },
+      "formulas": {
+        "H": "=+IFERROR(G30/I30, 0)",
+        "L": "=+I30-J30",
+        "M": "=+IFERROR(IF(L30>0, ABS(L30/J30), -ABS(L30/J30)), 0)",
+        "N": "=+I30-K30",
+        "O": "=+IFERROR(IF(N30>0, ABS(N30/K30), -ABS(N30/K30)), 0)"
+      }
+    },
+    {
+      "row": 31,
+      "label": "Civils & Infrastructure",
+      "values": {
+        "F": "Civils & Infrastructure",
+        "G": -3936938.946,
+        "H": 0.9284288958327696,
+        "I": -4240431.296,
+        "J": -4240431.296,
+        "K": -4187446.596,
+        "L": 0,
+        "M": 0,
+        "N": -52984.700000000186,
+        "O": -0.012653224055588693
+      },
+      "formulas": {
+        "H": "=+IFERROR(G31/I31, 0)",
+        "L": "=+I31-J31",
+        "M": "=+IFERROR(IF(L31>0, ABS(L31/J31), -ABS(L31/J31)), 0)",
+        "N": "=+I31-K31",
+        "O": "=+IFERROR(IF(N31>0, ABS(N31/K31), -ABS(N31/K31)), 0)"
+      }
+    },
+    {
+      "row": 32,
+      "label": "General Landscaping",
+      "values": {
+        "F": "General Landscaping",
+        "G": -261220.5,
+        "H": 1,
+        "I": -261220.5,
+        "J": -259680.5,
+        "K": -213791.8,
+        "L": -1540,
+        "M": -0.005930364428595909,
+        "N": -47428.70000000001,
+        "O": -0.22184527189536743
+      },
+      "formulas": {
+        "H": "=+IFERROR(G32/I32, 0)",
+        "L": "=+I32-J32",
+        "M": "=+IFERROR(IF(L32>0, ABS(L32/J32), -ABS(L32/J32)), 0)",
+        "N": "=+I32-K32",
+        "O": "=+IFERROR(IF(N32>0, ABS(N32/K32), -ABS(N32/K32)), 0)"
+      }
+    },
+    {
+      "row": 33,
+      "label": "Clubhouse & Amenities",
+      "values": {
+        "F": "Clubhouse & Amenities",
+        "G": -1173637.7967,
+        "H": 0.2013886371287875,
+        "I": -5827725.999999999,
+        "J": -5827725.999999996,
+        "K": -5840325.999999999,
+        "L": 0,
+        "M": 0,
+        "N": 12600,
+        "O": 0.00215741381559865
+      },
+      "formulas": {
+        "H": "=+IFERROR(G33/I33, 0)",
+        "L": "=+I33-J33",
+        "M": "=+IFERROR(IF(L33>0, ABS(L33/J33), -ABS(L33/J33)), 0)",
+        "N": "=+I33-K33",
+        "O": "=+IFERROR(IF(N33>0, ABS(N33/K33), -ABS(N33/K33)), 0)"
+      }
+    },
+    {
+      "row": 34,
+      "label": "Professional Fees",
+      "values": {
+        "F": "Professional Fees",
+        "G": -2035446.1303,
+        "H": 0.7643861015975757,
+        "I": -2662850.7844999987,
+        "J": -2653012.599199999,
+        "K": -2655222.0716000013,
+        "L": -9838.185299999546,
+        "M": -0.0037083070404438315,
+        "N": -7628.712899997365,
+        "O": -0.00287309787817499
+      },
+      "formulas": {
+        "H": "=+IFERROR(G34/I34, 0)",
+        "L": "=+I34-J34",
+        "M": "=+IFERROR(IF(L34>0, ABS(L34/J34), -ABS(L34/J34)), 0)",
+        "N": "=+I34-K34",
+        "O": "=+IFERROR(IF(N34>0, ABS(N34/K34), -ABS(N34/K34)), 0)"
+      }
+    },
+    {
+      "row": 35,
+      "label": "Statutory Fees",
+      "values": {
+        "F": "Statutory Fees",
+        "G": -605203.1400000001,
+        "H": 1,
+        "I": -605203.1400000001,
+        "J": -605203.1400000001,
+        "K": -605158.1400000001,
+        "L": 0,
+        "M": 0,
+        "N": -45,
+        "O": -7.436072825526231e-05
+      },
+      "formulas": {
+        "H": "=+IFERROR(G35/I35, 0)",
+        "L": "=+I35-J35",
+        "M": "=+IFERROR(IF(L35>0, ABS(L35/J35), -ABS(L35/J35)), 0)",
+        "N": "=+I35-K35",
+        "O": "=+IFERROR(IF(N35>0, ABS(N35/K35), -ABS(N35/K35)), 0)"
+      }
+    },
+    {
+      "row": 36,
+      "label": "Other",
+      "values": {
+        "F": "Other",
+        "G": -66489.33,
+        "H": 1,
+        "I": -66489.33,
+        "J": -65675.33,
+        "K": -63346.78,
+        "L": -814,
+        "M": -0.012394303918990586,
+        "N": -3142.550000000003,
+        "O": -0.049608677820719586
+      },
+      "formulas": {
+        "H": "=+IFERROR(G36/I36, 0)",
+        "L": "=+I36-J36",
+        "M": "=+IFERROR(IF(L36>0, ABS(L36/J36), -ABS(L36/J36)), 0)",
+        "N": "=+I36-K36",
+        "O": "=+IFERROR(IF(N36>0, ABS(N36/K36), -ABS(N36/K36)), 0)"
+      }
+    },
+    {
+      "row": 37,
+      "label": "Contingency (Civils & EMW)",
+      "values": {
+        "F": "Contingency (Civils & EMW)",
+        "G": -52907.81,
+        "H": 1,
+        "I": -52907.81,
+        "J": -461853.81,
+        "K": -461853.81,
+        "L": 408946,
+        "M": 0.8854446821603572,
+        "N": 408946,
+        "O": 0.8854446821603572
+      },
+      "formulas": {
+        "H": "=+IFERROR(G37/I37, 0)",
+        "L": "=+I37-J37",
+        "M": "=+IFERROR(IF(L37>0, ABS(L37/J37), -ABS(L37/J37)), 0)",
+        "N": "=+I37-K37",
+        "O": "=+IFERROR(IF(N37>0, ABS(N37/K37), -ABS(N37/K37)), 0)"
+      }
+    },
+    {
+      "row": 38,
+      "label": "Contingency (Clubhouse & Amenities)",
+      "values": {
+        "F": "Contingency (Clubhouse & Amenities)",
+        "G": 0,
+        "H": 0,
+        "I": -160262.465,
+        "J": -160262.465,
+        "K": -160608.965,
+        "L": 0,
+        "M": 0,
+        "N": 346.5,
+        "O": 0.0021574138155986498
+      },
+      "formulas": {
+        "H": "=+IFERROR(G38/I38, 0)",
+        "L": "=+I38-J38",
+        "M": "=+IFERROR(IF(L38>0, ABS(L38/J38), -ABS(L38/J38)), 0)",
+        "N": "=+I38-K38",
+        "O": "=+IFERROR(IF(N38>0, ABS(N38/K38), -ABS(N38/K38)), 0)"
+      }
+    },
+    {
+      "row": 39,
+      "label": "Subtotal Dev Capex",
+      "values": {
+        "F": "Subtotal Dev Capex",
+        "G": -10997442.391,
+        "H": 0.656850383617567,
+        "I": -16742690.063499998,
+        "J": -17139443.878199995,
+        "K": -17053352.9006,
+        "L": 396753.81469999626,
+        "M": 0.02314858157122796,
+        "N": 310662.8371000029,
+        "O": 0.01821711184368164
+      },
+      "formulas": {
+        "G": "=SUM(G30:G38)",
+        "H": "=+IFERROR(G39/I39, 0)",
+        "I": "=SUM(I30:I38)",
+        "J": "=SUM(J30:J38)",
+        "K": "=SUM(K30:K38)",
+        "L": "=+I39-J39",
+        "M": "=+IFERROR(IF(L39>0, ABS(L39/J39), -ABS(L39/J39)), 0)",
+        "N": "=+I39-K39",
+        "O": "=+IFERROR(IF(N39>0, ABS(N39/K39), -ABS(N39/K39)), 0)"
+      }
+    },
+    {
+      "row": 40,
+      "label": "NET Dev Cash Flow",
+      "values": {
+        "F": "NET Dev Cash Flow",
+        "G": -13591845.4464,
+        "H": 0.943025609964502,
+        "I": -14413018.376999998,
+        "J": -14797503.751699993,
+        "K": -14783356.7541,
+        "L": 384485.3746999949,
+        "M": 0.02598312398845135,
+        "N": 370338.377100002,
+        "O": 0.02505103429891136
+      },
+      "formulas": {
+        "G": "=+SUM(G29,G39)",
+        "H": "=+IFERROR(G40/I40, 0)",
+        "I": "=+SUM(I29,I39)",
+        "J": "=+SUM(J29,J39)",
+        "K": "=+SUM(K29,K39)",
+        "L": "=+I40-J40",
+        "M": "=+IFERROR(IF(L40>0, ABS(L40/J40), -ABS(L40/J40)), 0)",
+        "N": "=+I40-K40",
+        "O": "=+IFERROR(IF(N40>0, ABS(N40/K40), -ABS(N40/K40)), 0)"
+      }
+    }
+  ]
+}
