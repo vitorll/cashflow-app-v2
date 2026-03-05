@@ -1,0 +1,208 @@
+/* CSS Custom Properties — design tokens */
+:root {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-elevated: #2a2a2a;
+  --accent: #bb86fc;
+  --accent-dim: #9a67d4;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --border: #333333;
+  --radius: 6px;
+}
+
+/* Base reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'DM Serif Display', serif;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+/* App shell */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+}
+
+.app-title {
+  font-size: 1.75rem;
+  color: var(--accent);
+}
+
+/* Tab navigation */
+.app-nav {
+  display: flex;
+  gap: 4px;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+}
+
+.app-nav-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 12px 16px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.app-nav-tab:hover {
+  color: var(--text-primary);
+}
+
+.app-nav-tab--active {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Main content area */
+.app-main {
+  flex: 1;
+  padding: 24px;
+}
+
+/* Dashboard tab */
+.dashboard-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dashboard-heading {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.dashboard-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.dashboard-stat {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Forecast tab */
+.forecast-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.forecast-heading {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.forecast-row {
+  display: flex;
+  gap: 8px;
+}
+
+.forecast-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Phase Comparison tab */
+.phase-comparison-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.phase-comparison-heading {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.phase-comparison-row {
+  display: flex;
+  gap: 8px;
+}
+
+.phase-comparison-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* P&L tab */
+.pnl-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pnl-heading {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.pnl-row {
+  display: flex;
+  gap: 8px;
+}
+
+.pnl-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Data Entry tab */
+.data-entry-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.data-entry-heading {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.data-entry-row {
+  display: flex;
+  gap: 8px;
+}
+
+.data-entry-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
