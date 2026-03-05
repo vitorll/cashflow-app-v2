@@ -20,6 +20,7 @@ dev = [
     "pytest-cov",
     "ruff",
     "httpx",
+    "openpyxl",
 ]
 
 [tool.pytest.ini_options]
