@@ -16,7 +16,7 @@ from pathlib import Path
 
 import openpyxl
 
-from app.domain.enums import Phase, SectionType, SeriesType, PHASES
+from app.domain.enums import Phase, SectionType, SeriesType
 
 
 def _cell_to_date_str(value) -> str:

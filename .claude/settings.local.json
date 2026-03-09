@@ -11,7 +11,8 @@
       "Bash(git add:*)",
       "Bash(git restore:*)",
       "Bash(git commit:*)",
-      "Bash(docker:*)"
+      "Bash(docker:*)",
+      "Bash(git:*)"
     ]
   },
   "disabledMcpjsonServers": [

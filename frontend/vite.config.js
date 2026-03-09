@@ -10,9 +10,10 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: [],
+    setupFiles: ['./tests/setup.js'],
     coverage: {
       provider: 'v8',
+      exclude: ['src/main.jsx', 'vite.config.js', 'eslint.config.js', 'tests/**'],
       thresholds: {
         lines: 70,
       },
