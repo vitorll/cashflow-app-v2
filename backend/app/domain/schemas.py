@@ -2,13 +2,13 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.domain.enums import ImportStatus, Phase, SectionType, SeriesType, VersionType, SourceType
 
 
 class ImportBase(BaseModel):
-    name: str
+    name: str = Field(min_length=1)
     version_type: VersionType
     source_type: SourceType
 
