@@ -93,3 +93,28 @@ class PnlSummaryResponse(BaseModel):
     budget: Decimal | None = None
     current: Decimal | None = None
     delta: Decimal | None = None
+
+
+# ---------------------------------------------------------------------------
+# Forecast schemas — C1
+# ---------------------------------------------------------------------------
+
+
+class ForecastEntry(BaseModel):
+    month: int
+    value: Decimal
+    is_actual: bool
+
+
+class ForecastRow(BaseModel):
+    section: SectionType
+    line_item: str
+    display_name: str
+    is_calculated: bool
+    sort_order: int
+    entries: list[ForecastEntry]
+
+
+class ForecastResponse(BaseModel):
+    import_id: uuid.UUID
+    rows: list[ForecastRow]

@@ -170,6 +170,10 @@ class N12mLineItem(Base):
     )
     line_item: Mapped[str] = mapped_column(sa.Text, nullable=False)
     value: Mapped[Decimal] = mapped_column(sa.NUMERIC(18, 4), nullable=False)
+    is_actual: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=False)
+    is_calculated: Mapped[bool] = mapped_column(sa.Boolean, nullable=False, default=False)
+    sort_order: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=0)
+    display_name: Mapped[str] = mapped_column(sa.Text, nullable=False, default="")
 
 
 class NcfSeries(Base):

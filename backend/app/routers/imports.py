@@ -25,7 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import AsyncSessionLocal
 from app.domain.enums import ImportStatus, Phase
 from app.domain.models import Import, N12mLineItem, NcfSeries, PerDeliveryRow, PhaseComparisonRow, PnlSummary
-from app.domain.schemas import ImportCreate, ImportResponse
+from app.domain.schemas import ForecastEntry, ForecastResponse, ForecastRow, ImportCreate, ImportResponse
 from app.services.cascade_service import run_cascade
 from app.services.excel_parser.base import parse_excel
 
@@ -198,10 +198,21 @@ async def upload_import_file(
     # -----------------------------------------------------------------------
     # Persist n12m_line_items — flatten entries list from cascade result
     # -----------------------------------------------------------------------
+    # Build month -> is_actual map from import_meta
+    actual_flags_str = parsed["import_meta"].get("actual_flags", "")
+    n12m_months_str = parsed["import_meta"].get("n12m_months", "")
+    if actual_flags_str and n12m_months_str:
+        _flags = [f.strip().lower() == "true" for f in actual_flags_str.split(",")]
+        _months = [m.strip() for m in n12m_months_str.split(",")]
+        month_is_actual = dict(zip(_months, _flags))
+    else:
+        month_is_actual = {}
+
     n12m_rows = []
     for row in cascade["n12m_line_items"]:
         for entry in row["entries"]:
-            month_int = int(entry["month"].split("-")[1])
+            month_str = entry["month"]
+            month_int = int(month_str.split("-")[1])
             n12m_rows.append(
                 N12mLineItem(
                     import_id=import_id,
@@ -209,6 +220,10 @@ async def upload_import_file(
                     section=row["section"],
                     line_item=row["line_item"],
                     value=entry["value"],
+                    display_name=row["display_name"],
+                    is_calculated=row["is_calculated"],
+                    sort_order=row["sort_order"],
+                    is_actual=month_is_actual.get(month_str, False),
                 )
             )
     session.add_all(n12m_rows)
@@ -255,3 +270,66 @@ async def upload_import_file(
 
     log.info("import_file_upload_complete", import_id=str(import_id))
     return record
+
+
+# ---------------------------------------------------------------------------
+# GET /imports/{id}/forecast — C1
+# ---------------------------------------------------------------------------
+
+
+@router.get("/{import_id}/forecast", response_model=ForecastResponse, status_code=200)
+async def get_forecast(
+    import_id: uuid.UUID,
+    session: AsyncSession = Depends(get_session),
+) -> ForecastResponse:
+    log = logger.bind(import_id=str(import_id))
+    log.info("forecast_get_start")
+
+    # Fetch import — 404 if missing, soft-deleted, or not complete
+    result = await session.execute(
+        select(Import).where(Import.id == import_id, Import.deleted_at.is_(None))
+    )
+    record = result.scalar_one_or_none()
+    if record is None:
+        log.warning("forecast_get_not_found")
+        raise HTTPException(status_code=404, detail="Import not found")
+
+    if record.status != ImportStatus.complete:
+        log.warning("forecast_get_not_complete", status=record.status)
+        raise HTTPException(status_code=404, detail="Import data not available (status is not complete)")
+
+    # Query all N12mLineItem rows for this import, ordered by sort_order then month
+    items_result = await session.execute(
+        select(N12mLineItem)
+        .where(N12mLineItem.import_id == import_id)
+        .order_by(N12mLineItem.sort_order, N12mLineItem.month)
+    )
+    items = list(items_result.scalars().all())
+
+    # Group by (section, line_item), collect entries in sort_order sequence
+    grouped: dict[tuple, dict] = {}
+    for item in items:
+        key = (item.section, item.line_item)
+        if key not in grouped:
+            grouped[key] = {
+                "display_name": item.display_name,
+                "is_calculated": item.is_calculated,
+                "sort_order": item.sort_order,
+                "entries": [],
+            }
+        grouped[key]["entries"].append(ForecastEntry(month=item.month, value=item.value, is_actual=item.is_actual))
+
+    rows = [
+        ForecastRow(
+            section=section,
+            line_item=line_item,
+            display_name=meta["display_name"],
+            is_calculated=meta["is_calculated"],
+            sort_order=meta["sort_order"],
+            entries=meta["entries"],
+        )
+        for (section, line_item), meta in grouped.items()
+    ]
+
+    log.info("forecast_get_complete", import_id=str(import_id), row_count=len(rows))
+    return ForecastResponse(import_id=import_id, rows=rows)
