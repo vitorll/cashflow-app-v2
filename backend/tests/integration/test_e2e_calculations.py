@@ -1,20 +1,11 @@
-"""E2E golden file test — Phase A3.
+"""E2E golden file test — Phase A3 / B5.
 
-This test is intentionally RED. It will remain RED until Phase B5 when
-parse_excel() and run_cascade() are implemented.
-
-The test imports from modules that do not exist yet. The ImportError IS the
-RED state. Do not mock or skip — the failure confirms the contract is locked.
-
-When B5 is complete:
-  1. Remove the @pytest.mark.xfail decorator
-  2. Remove the two placeholder lines at the top of the function body
-  3. Uncomment the assertion block below them
-  4. Verify the test goes GREEN
+Phase A3: fixture files committed; xfail guard held the test RED.
+Phase B5: xfail removed; parse_excel() and run_cascade() are now implemented.
+          This test must now pass GREEN in CI on every push.
 """
 
 import json
-import pytest
 from decimal import Decimal
 from pathlib import Path
 
@@ -114,20 +105,11 @@ def test_golden_file_per_delivery_rows():
             )
 
 
-@pytest.mark.xfail(
-    reason="RED: parse_excel + run_cascade not yet implemented (Phase B2/B4/B5)",
-    strict=True,
-)
 def test_e2e_cascade_output_matches_golden_file():
-    """Full E2E: parse Excel → run cascade → assert output == expected_output.json.
+    """Full E2E: parse Excel → run cascade → assert output == expected_output.json."""
+    from app.services.excel_parser.base import parse_excel
+    from app.services.cascade_service import run_cascade
 
-    This test is xfail/strict=True:
-      - It MUST fail until B5 is complete (strict=True enforces this)
-      - When B5 is done: remove this decorator, remove the two lines below,
-        and uncomment the assertion block.
-
-    B5 IMPLEMENTATION GUIDE — the assertions to uncomment:
-    -------------------------------------------------------
     result = run_cascade(parse_excel(XLSX_PATH))
     golden = _load_golden()
 
@@ -176,15 +158,5 @@ def test_e2e_cascade_output_matches_golden_file():
         assert key in result_ncf, f"Missing NCF entry: {key}"
         expected = Decimal(row["value"])
         assert abs(result_ncf[key] - expected) < Decimal("0.01"), (
-            f"NCF mismatch at {key}: expected {expected}, got {result_ncf[key]}"
+            f"NCF mismatch at {key}: expected {expected}, got {row['value']}"
         )
-    -------------------------------------------------------
-    """
-    # These imports will raise ImportError until B2/B4 are implemented.
-    from app.services.excel_parser.base import parse_excel  # noqa: F401
-    from app.services.cascade_service import run_cascade  # noqa: F401
-
-    raise NotImplementedError(
-        "Remove this line and the xfail decorator in B5. "
-        "Uncomment the assertion block in the docstring above."
-    )

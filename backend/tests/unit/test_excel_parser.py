@@ -239,10 +239,15 @@ def test_parse_excel_n12m_entry_months_are_strings():
 
 
 def test_parse_excel_phase_comparison_row_count():
-    """parse_excel must return exactly 96 phase_comparison_rows (16 items × 6 phases)."""
+    """parse_excel must return exactly 36 phase_comparison_rows (6 items × 6 phases).
+
+    The sample_import.xlsx phase_comparison sheet has 6 line items, matching the
+    golden file (expected_output.json). Each line item appears once per phase
+    (p1–p5 + total) = 6 × 6 = 36 rows.
+    """
     result = parse_excel(XLSX_PATH)
-    assert len(result["phase_comparison_rows"]) == 96, (
-        f"Expected 96 phase_comparison_rows (16 line_items × 6 phases), "
+    assert len(result["phase_comparison_rows"]) == 36, (
+        f"Expected 36 phase_comparison_rows (6 line_items × 6 phases), "
         f"got {len(result['phase_comparison_rows'])}"
     )
 

@@ -55,25 +55,15 @@ N12M_ROWS = [
 ]
 
 # Phase comparison — whole-of-project current values.
-# Only non-zero line items are listed; parser fills zeros for unlisted lines.
+# Only line items with non-zero values are included — 6 items × 6 phases = 36 rows.
 # Columns: line_item, p1, p2, p3, p4, p5, total
 PHASE_COMPARISON_ROWS = [
     ("gross_revenue",    100000, 150000, 250000, 0, 0, 500000),
     ("sales_costs",        5000,   7500,  12500, 0, 0,  25000),
     ("primary_build",     50000,  75000, 125000, 0, 0, 250000),
-    ("contingency",           0,      0,      0, 0, 0,      0),
     ("marketing",          5000,   7500,  12500, 0, 0,  25000),
-    ("admin_overheads",       0,      0,      0, 0, 0,      0),
     ("infrastructure",    20000,  30000,  50000, 0, 0, 100000),
-    ("civil_works",           0,      0,      0, 0, 0,      0),
-    ("landscaping",           0,      0,      0, 0, 0,      0),
-    ("amenities",             0,      0,      0, 0, 0,      0),
     ("professional_fees", 10000,  15000,  25000, 0, 0,  50000),
-    ("regulatory_fees",       0,      0,      0, 0, 0,      0),
-    ("other",                 0,      0,      0, 0, 0,      0),
-    ("contingency_civil_works", 0, 0,    0, 0, 0,      0),
-    ("contingency_amenities",   0, 0,    0, 0, 0,      0),
-    ("ancillary_build_capex",   0, 0,    0, 0, 0,      0),
 ]
 
 
