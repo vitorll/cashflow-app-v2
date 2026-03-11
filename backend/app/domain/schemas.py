@@ -96,6 +96,29 @@ class PnlSummaryResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Phase comparison schemas — C2
+# ---------------------------------------------------------------------------
+
+
+class PhaseComparisonEntry(BaseModel):
+    phase: Phase
+    budget: Decimal | None = None
+    current: Decimal | None = None
+    delta: Decimal | None = None
+    delta_pct: Decimal | None = None
+
+
+class PhaseComparisonGroupedRow(BaseModel):
+    line_item: str
+    entries: list[PhaseComparisonEntry]
+
+
+class PhaseComparisonResponse(BaseModel):
+    import_id: uuid.UUID
+    rows: list[PhaseComparisonGroupedRow]
+
+
+# ---------------------------------------------------------------------------
 # Forecast schemas — C1
 # ---------------------------------------------------------------------------
 

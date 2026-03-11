@@ -25,7 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import AsyncSessionLocal
 from app.domain.enums import ImportStatus, Phase
 from app.domain.models import Import, N12mLineItem, NcfSeries, PerDeliveryRow, PhaseComparisonRow, PnlSummary
-from app.domain.schemas import ForecastEntry, ForecastResponse, ForecastRow, ImportCreate, ImportResponse
+from app.domain.schemas import ForecastEntry, ForecastResponse, ForecastRow, ImportCreate, ImportResponse, PhaseComparisonEntry, PhaseComparisonGroupedRow, PhaseComparisonResponse
 from app.services.cascade_service import run_cascade
 from app.services.excel_parser.base import parse_excel
 
@@ -333,3 +333,61 @@ async def get_forecast(
 
     log.info("forecast_get_complete", import_id=str(import_id), row_count=len(rows))
     return ForecastResponse(import_id=import_id, rows=rows)
+
+
+# ---------------------------------------------------------------------------
+# GET /imports/{id}/phase-comparison — C2
+# ---------------------------------------------------------------------------
+
+
+@router.get("/{import_id}/phase-comparison", response_model=PhaseComparisonResponse, status_code=200)
+async def get_phase_comparison(
+    import_id: uuid.UUID,
+    session: AsyncSession = Depends(get_session),
+) -> PhaseComparisonResponse:
+    log = logger.bind(import_id=str(import_id))
+    log.info("phase_comparison_get_start")
+
+    # Fetch import — 404 if missing, soft-deleted, or not complete
+    result = await session.execute(
+        select(Import).where(Import.id == import_id, Import.deleted_at.is_(None))
+    )
+    record = result.scalar_one_or_none()
+    if record is None:
+        log.warning("phase_comparison_get_not_found")
+        raise HTTPException(status_code=404, detail="Import not found")
+
+    if record.status != ImportStatus.complete:
+        log.warning("phase_comparison_get_not_complete", status=record.status)
+        raise HTTPException(status_code=404, detail="Import data not available (status is not complete)")
+
+    # Query all PhaseComparisonRow rows for this import, ordered for stable grouping
+    rows_result = await session.execute(
+        select(PhaseComparisonRow)
+        .where(PhaseComparisonRow.import_id == import_id)
+        .order_by(PhaseComparisonRow.line_item, PhaseComparisonRow.phase)
+    )
+    db_rows = list(rows_result.scalars().all())
+
+    # Group by line_item — insertion-order dict preserves line_item sequence
+    grouped: dict[str, list[PhaseComparisonEntry]] = {}
+    for row in db_rows:
+        if row.line_item not in grouped:
+            grouped[row.line_item] = []
+        grouped[row.line_item].append(
+            PhaseComparisonEntry(
+                phase=row.phase,
+                budget=row.budget,
+                current=row.current,
+                delta=row.delta,
+                delta_pct=row.delta_pct,
+            )
+        )
+
+    grouped_rows = [
+        PhaseComparisonGroupedRow(line_item=line_item, entries=entries)
+        for line_item, entries in grouped.items()
+    ]
+
+    log.info("phase_comparison_get_complete", import_id=str(import_id), row_count=len(grouped_rows))
+    return PhaseComparisonResponse(import_id=import_id, rows=grouped_rows)
