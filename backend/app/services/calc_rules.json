@@ -1,0 +1,8 @@
+[
+  {"field": "net_revenue", "op": "subtract", "inputs": ["gross_revenue", "sales_costs"]},
+  {"field": "subtotal_direct_cost", "op": "sum", "inputs": ["primary_build", "contingency"]},
+  {"field": "subtotal_overheads", "op": "sum", "inputs": ["marketing", "admin_overheads"]},
+  {"field": "gross_cash_flow", "op": "subtract", "inputs": ["net_revenue", "subtotal_direct_cost", "subtotal_overheads"]},
+  {"field": "subtotal_capex", "op": "sum", "inputs": ["infrastructure", "civil_works", "landscaping", "amenities", "professional_fees", "regulatory_fees", "other", "contingency_civil_works", "contingency_amenities", "ancillary_build_capex"]},
+  {"field": "net_cash_flow", "op": "subtract", "inputs": ["gross_cash_flow", "subtotal_capex"]}
+]
