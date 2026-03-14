@@ -1,37 +1,66 @@
-"""Import router — Phase B3/B5.
+"""Import router — Phase B3–C4.
 
 Endpoints:
-  POST   /imports              — create a new Import record (status defaults to pending)
-  GET    /imports              — list all non-deleted imports
-  DELETE /imports/{id}        — soft-delete (sets deleted_at); 404 if not found or already deleted
-  PATCH  /imports/{id}/file   — upload xlsx, parse + cascade + persist; sets status=complete
-
-NOTE: POST /imports creates a metadata-only record (no xlsx attached).
-PATCH /imports/{id}/file (B5) attaches the uploaded file and triggers the cascade.
+  POST   /imports                          — create a new Import record (status defaults to pending)
+  GET    /imports                          — list all non-deleted imports
+  DELETE /imports/{id}                     — soft-delete (sets deleted_at); 404 if not found or already deleted
+  PATCH  /imports/{id}/file               — upload xlsx, parse + cascade + persist; sets status=complete
+  GET    /imports/{id}/forecast            — C1: N12M forecast rows grouped by line_item
+  GET    /imports/{id}/phase-comparison    — C2: phase comparison rows grouped by line_item
+  GET    /imports/{id}/pnl                 — C3: P&L summary rows (flat, 7 rows)
+  PATCH  /imports/{id}/n12m/{line}/{month} — C4: single-cell edit → cascade recalc → 204
 """
 
 import os
 import tempfile
 import uuid
 import zipfile
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import AsyncGenerator
 
 import structlog
 from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile
-from sqlalchemy import select
+from sqlalchemy import delete as sa_delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import AsyncSessionLocal
 from app.domain.enums import ImportStatus, Phase
-from app.domain.models import Import, N12mLineItem, NcfSeries, PerDeliveryRow, PhaseComparisonRow, PnlSummary
-from app.domain.schemas import ForecastEntry, ForecastResponse, ForecastRow, ImportCreate, ImportResponse, PhaseComparisonEntry, PhaseComparisonGroupedRow, PhaseComparisonResponse, PnlRow, PnlResponse
+from app.domain.models import DeliveryCount, Import, N12mLineItem, NcfSeries, PerDeliveryRow, PhaseComparisonRow, PnlSummary
+from app.domain.schemas import ForecastEntry, ForecastResponse, ForecastRow, ImportCreate, ImportResponse, N12mPatchRequest, PhaseComparisonEntry, PhaseComparisonGroupedRow, PhaseComparisonResponse, PnlRow, PnlResponse
 from app.services.cascade_service import run_cascade
 from app.services.excel_parser.base import parse_excel
 
 logger = structlog.get_logger()
 
 router = APIRouter(prefix="/imports", tags=["imports"])
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _month_int_to_date_str(month: int, report_month) -> str:
+    """Reconstruct a YYYY-MM-DD string from a stored month integer and the import's report_month.
+
+    The 12-month window starts the month AFTER report_month. Months greater than or equal
+    to the start month fall in the same year as report_month; smaller months fall in the
+    following year.
+
+    Example: report_month=2025-09-01 → start=October 2025
+      month=10,11,12 → 2025-10-01, 2025-11-01, 2025-12-01
+      month=1..9     → 2026-01-01 .. 2026-09-01
+    """
+    if report_month is None:
+        # Fallback: assume current year (should not happen for complete imports)
+        report_month = date.today().replace(day=1)
+    start_month = report_month.month + 1
+    start_year = report_month.year
+    if start_month > 12:
+        start_month = 1
+        start_year += 1
+    year = start_year if month >= start_month else start_year + 1
+    return f"{year}-{month:02d}-01"
 
 
 # ---------------------------------------------------------------------------
@@ -260,10 +289,29 @@ async def upload_import_file(
     session.add_all(pnl_rows)
 
     # -----------------------------------------------------------------------
-    # Mark import as complete
+    # Persist delivery_counts — one row per phase (p1–p5, not total)
+    # -----------------------------------------------------------------------
+    dc_rows = [
+        DeliveryCount(
+            import_id=import_id,
+            phase=dc["phase"],
+            count=dc["count"],
+        )
+        for dc in parsed["delivery_counts"]
+        if dc["phase"] != Phase.total
+    ]
+    session.add_all(dc_rows)
+
+    # -----------------------------------------------------------------------
+    # Mark import as complete and persist report_month
     # -----------------------------------------------------------------------
     record.status = ImportStatus.complete
     # updated_at is managed by onupdate=func.now() on the model — no manual assignment needed
+
+    # Persist report_month from import_meta
+    report_month_str = parsed["import_meta"].get("report_month", "")
+    if report_month_str:
+        record.report_month = date.fromisoformat(report_month_str)
 
     await session.commit()
     await session.refresh(record)
@@ -444,3 +492,166 @@ async def get_pnl(
 
     log.info("pnl_get_complete", import_id=str(import_id), row_count=len(rows))
     return PnlResponse(import_id=import_id, rows=rows)
+
+
+# ---------------------------------------------------------------------------
+# PATCH /imports/{id}/n12m/{line_item}/{month} — C4
+# ---------------------------------------------------------------------------
+
+
+@router.patch("/{import_id}/n12m/{line_item}/{month}", status_code=204)
+async def patch_n12m(
+    import_id: uuid.UUID,
+    line_item: str,
+    month: int,
+    body: N12mPatchRequest,
+    session: AsyncSession = Depends(get_session),
+) -> Response:
+    log = logger.bind(import_id=str(import_id), line_item=line_item, month=month)
+    log.info("n12m_patch_start")
+
+    # 404 if import missing, soft-deleted, or not complete
+    result = await session.execute(
+        select(Import).where(Import.id == import_id, Import.deleted_at.is_(None))
+    )
+    record = result.scalar_one_or_none()
+    if record is None:
+        raise HTTPException(status_code=404, detail="Import not found")
+    if record.status != ImportStatus.complete:
+        raise HTTPException(status_code=404, detail="Import data not available (status is not complete)")
+
+    # 404 if line_item/month combination not found
+    n12m_result = await session.execute(
+        select(N12mLineItem).where(
+            N12mLineItem.import_id == import_id,
+            N12mLineItem.line_item == line_item,
+            N12mLineItem.month == month,
+            N12mLineItem.is_calculated.is_(False),
+        )
+    )
+    n12m_row = n12m_result.scalar_one_or_none()
+    if n12m_row is None:
+        raise HTTPException(status_code=404, detail=f"Line item '{line_item}' month {month} not found")
+
+    # Update the value on the matched row
+    n12m_row.value = body.value
+
+    # Reconstruct cascade input from DB — non-calculated rows only
+    all_n12m_result = await session.execute(
+        select(N12mLineItem)
+        .where(N12mLineItem.import_id == import_id, N12mLineItem.is_calculated.is_(False))
+        .order_by(N12mLineItem.sort_order, N12mLineItem.month)
+    )
+    all_n12m = list(all_n12m_result.scalars().all())
+
+    pc_result = await session.execute(
+        select(PhaseComparisonRow).where(PhaseComparisonRow.import_id == import_id)
+    )
+    pc_rows = list(pc_result.scalars().all())
+
+    dc_result = await session.execute(
+        select(DeliveryCount).where(DeliveryCount.import_id == import_id)
+    )
+    dc_rows_db = list(dc_result.scalars().all())
+
+    # Group n12m rows into cascade format
+    n12m_by_item: dict[str, dict] = {}
+    for row in all_n12m:
+        key = row.line_item
+        if key not in n12m_by_item:
+            n12m_by_item[key] = {
+                "section": row.section,
+                "line_item": row.line_item,
+                "display_name": row.display_name,
+                "is_calculated": row.is_calculated,
+                "sort_order": row.sort_order,
+                "entries": [],
+            }
+        month_str = _month_int_to_date_str(row.month, record.report_month)
+        n12m_by_item[key]["entries"].append({"month": month_str, "value": row.value})
+
+    parsed_for_cascade = {
+        "import_meta": {
+            "version_type": record.version_type.value,
+            "source_type": record.source_type.value,
+        },
+        "delivery_counts": [{"phase": r.phase, "count": r.count} for r in dc_rows_db],
+        "n12m_line_items": list(n12m_by_item.values()),
+        "phase_comparison_rows": [
+            {
+                "line_item": r.line_item,
+                "phase": r.phase,
+                "budget": r.budget,
+                "current": r.current,
+            }
+            for r in pc_rows
+        ],
+    }
+
+    cascade = run_cascade(parsed_for_cascade)
+
+    # Re-persist derived tables (delete + re-insert in same transaction)
+    await session.execute(sa_delete(PerDeliveryRow).where(PerDeliveryRow.import_id == import_id))
+    await session.execute(sa_delete(NcfSeries).where(NcfSeries.import_id == import_id))
+    await session.execute(sa_delete(PnlSummary).where(PnlSummary.import_id == import_id))
+
+    new_pd_rows = [
+        PerDeliveryRow(
+            import_id=import_id,
+            line_item=row["line_item"],
+            phase=row["phase"],
+            budget=row.get("budget"),
+            current=row.get("current"),
+        )
+        for row in cascade["per_delivery_rows"]
+    ]
+    session.add_all(new_pd_rows)
+
+    new_ncf_rows = [
+        NcfSeries(
+            import_id=import_id,
+            month=int(row["month"].split("-")[1]),
+            series_type=row["series_type"],
+            value=row["value"],
+        )
+        for row in cascade["ncf_series"]
+    ]
+    session.add_all(new_ncf_rows)
+
+    new_pnl_rows = [
+        PnlSummary(
+            import_id=import_id,
+            line_item=row["line_item"],
+            budget=row.get("budget_total"),
+            current=row.get("current_total"),
+        )
+        for row in cascade["pnl_summaries"]
+    ]
+    session.add_all(new_pnl_rows)
+
+    # Delete all calculated n12m rows and re-insert from cascade output
+    await session.execute(
+        sa_delete(N12mLineItem).where(
+            N12mLineItem.import_id == import_id,
+            N12mLineItem.is_calculated.is_(True),
+        )
+    )
+    for row in cascade["n12m_line_items"]:
+        if row["is_calculated"]:
+            for entry in row["entries"]:
+                month_int = int(entry["month"].split("-")[1])
+                session.add(N12mLineItem(
+                    import_id=import_id,
+                    month=month_int,
+                    section=row["section"],
+                    line_item=row["line_item"],
+                    value=entry["value"],
+                    display_name=row["display_name"],
+                    is_calculated=True,
+                    sort_order=row["sort_order"],
+                    is_actual=False,
+                ))
+
+    await session.commit()
+    log.info("n12m_patch_complete")
+    return Response(status_code=204)

@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 import sqlalchemy as sa
@@ -75,6 +75,10 @@ class Import(Base):
         sa.DateTime(timezone=True),
         nullable=True,
     )
+    report_month: Mapped[date | None] = mapped_column(
+        sa.Date(),
+        nullable=True,
+    )
 
 
 class PhaseComparisonRow(Base):
@@ -147,6 +151,31 @@ class PerDeliveryRow(Base):
         ),
         nullable=True,
     )
+
+
+class DeliveryCount(Base):
+    __tablename__ = "delivery_counts"
+
+    __table_args__ = (
+        sa.UniqueConstraint("import_id", "phase", name="uq_delivery_counts_import_phase"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        sa.UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
+    )
+    import_id: Mapped[uuid.UUID] = mapped_column(
+        sa.UUID(as_uuid=True),
+        sa.ForeignKey("imports.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    phase: Mapped[Phase] = mapped_column(
+        sa.Enum(Phase, name="phase_enum", create_type=False),
+        nullable=False,
+    )
+    count: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=0)
 
 
 class N12mLineItem(Base):

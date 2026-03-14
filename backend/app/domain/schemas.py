@@ -162,3 +162,12 @@ class PnlResponse(BaseModel):
 
     import_id: uuid.UUID
     rows: list[PnlRow]
+
+
+# ---------------------------------------------------------------------------
+# Data entry schemas — C4
+# ---------------------------------------------------------------------------
+
+
+class N12mPatchRequest(BaseModel):
+    value: Decimal
