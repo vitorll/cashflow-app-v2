@@ -141,3 +141,24 @@ class ForecastRow(BaseModel):
 class ForecastResponse(BaseModel):
     import_id: uuid.UUID
     rows: list[ForecastRow]
+
+
+# ---------------------------------------------------------------------------
+# P&L schemas — C3
+# ---------------------------------------------------------------------------
+
+
+class PnlRow(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    line_item: str
+    budget: Decimal | None = None
+    current: Decimal | None = None
+    delta: Decimal | None = None
+
+
+class PnlResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    import_id: uuid.UUID
+    rows: list[PnlRow]

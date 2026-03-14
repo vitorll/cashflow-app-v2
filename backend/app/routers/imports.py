@@ -25,7 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import AsyncSessionLocal
 from app.domain.enums import ImportStatus, Phase
 from app.domain.models import Import, N12mLineItem, NcfSeries, PerDeliveryRow, PhaseComparisonRow, PnlSummary
-from app.domain.schemas import ForecastEntry, ForecastResponse, ForecastRow, ImportCreate, ImportResponse, PhaseComparisonEntry, PhaseComparisonGroupedRow, PhaseComparisonResponse
+from app.domain.schemas import ForecastEntry, ForecastResponse, ForecastRow, ImportCreate, ImportResponse, PhaseComparisonEntry, PhaseComparisonGroupedRow, PhaseComparisonResponse, PnlRow, PnlResponse
 from app.services.cascade_service import run_cascade
 from app.services.excel_parser.base import parse_excel
 
@@ -391,3 +391,56 @@ async def get_phase_comparison(
 
     log.info("phase_comparison_get_complete", import_id=str(import_id), row_count=len(grouped_rows))
     return PhaseComparisonResponse(import_id=import_id, rows=grouped_rows)
+
+
+# ---------------------------------------------------------------------------
+# GET /imports/{id}/pnl — C3
+# ---------------------------------------------------------------------------
+
+_PNL_SORT_ORDER = [
+    "deliveries", "revenue", "cogs", "gross_profit",
+    "sales_and_marketing", "direct_costs", "net_profit",
+]
+
+
+@router.get("/{import_id}/pnl", response_model=PnlResponse, status_code=200)
+async def get_pnl(
+    import_id: uuid.UUID,
+    session: AsyncSession = Depends(get_session),
+) -> PnlResponse:
+    log = logger.bind(import_id=str(import_id))
+    log.info("pnl_get_start")
+
+    result = await session.execute(
+        select(Import).where(Import.id == import_id, Import.deleted_at.is_(None))
+    )
+    record = result.scalar_one_or_none()
+    if record is None:
+        log.warning("pnl_get_not_found")
+        raise HTTPException(status_code=404, detail="Import not found")
+
+    if record.status != ImportStatus.complete:
+        log.warning("pnl_get_not_complete", status=record.status)
+        raise HTTPException(status_code=404, detail="Import data not available (status is not complete)")
+
+    rows_result = await session.execute(
+        select(PnlSummary).where(PnlSummary.import_id == import_id)
+    )
+    db_rows = list(rows_result.scalars().all())
+
+    # Sort in canonical P&L order (insertion order not reliable for UUID PKs)
+    sort_key = {name: i for i, name in enumerate(_PNL_SORT_ORDER)}
+    db_rows.sort(key=lambda r: sort_key.get(r.line_item, len(_PNL_SORT_ORDER)))
+
+    rows = [
+        PnlRow(
+            line_item=row.line_item,
+            budget=row.budget,
+            current=row.current,
+            delta=row.delta,
+        )
+        for row in db_rows
+    ]
+
+    log.info("pnl_get_complete", import_id=str(import_id), row_count=len(rows))
+    return PnlResponse(import_id=import_id, rows=rows)
