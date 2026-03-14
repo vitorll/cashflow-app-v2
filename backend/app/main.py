@@ -6,6 +6,10 @@ from sqlalchemy import text
 
 from app.config import settings
 from app.db import engine
+# Import logging config first — configure_structlog() runs at module level so
+# every subsequent import (including test imports) picks up the processor chain.
+from app.middleware import logging as _logging_config  # noqa: F401
+from app.middleware.request_id import RequestIDMiddleware
 from app.routers.imports import router as imports_router
 
 logger = structlog.get_logger()
@@ -22,6 +26,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(RequestIDMiddleware)
 
 app.include_router(imports_router)
 
